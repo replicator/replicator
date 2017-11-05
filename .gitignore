@@ -1,0 +1,6 @@
+# Gradle
+.grade/
+*build/
+
+# IDE-specific ignore
+.idea/
