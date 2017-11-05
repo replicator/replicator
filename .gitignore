@@ -1,5 +1,5 @@
 # Gradle
-.grade/
+.gradle/
 *build/
 
 # IDE-specific ignore
