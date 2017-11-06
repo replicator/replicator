@@ -15,7 +15,7 @@ public class Layout {
         if (x < 1 || y < 1) {
             throw new IllegalArgumentException("Layout dimensions must be positive");
         }
-        grid = (Entity[][]) new Object[x][y];
+        grid = new Entity[x][y];
     }
 
     /**
@@ -27,17 +27,21 @@ public class Layout {
         char[] lineChar = new char[grid[0].length];
         Arrays.fill(lineChar, '-');
         String line = new String(lineChar);
-        String result = line + "\n";
+
+        StringBuilder result = new StringBuilder(line + "\n");
+
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
-                result += grid[row][col];
+                result.append(grid[row][col]);
             }
-            result += "\n";
+            result.append("\n");
         }
-        return result;
+        result.append("\n").append(line);
+        return result.toString();
     }
 
     public boolean update() {
+
         // update grid;
         return false;
     }

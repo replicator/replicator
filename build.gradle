@@ -17,6 +17,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+    compile 'org.springframework:spring-context:5.0.1.RELEASE'
     compile "joda-time:joda-time:2.2"
     testCompile "junit:junit:4.12"
 }

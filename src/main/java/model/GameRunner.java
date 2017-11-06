@@ -10,35 +10,23 @@ public class GameRunner {
     public static void main(String[] args) {
         boolean done = false;
         Scanner term = new Scanner(System.in);
-        while (!done) {
-            System.out.println("Enter layout: ");
-            String layout = "";
-            while (term.hasNextLine()) {
-                String nextLine = term.nextLine();
-                if (nextLine.contains("DONE")) {
-                    break;
-                }
-                layout += term.nextLine();
-            }
-            System.out.println("Layout entered: " + layout);
+//        while (!done) {
+        int[][] input = {
+                {1, 2, 3, 4},
+                {1, 2, 3, 4},
+                {5, 6, 7, 8},
+                {5, 6, 7, 8}};
+        Layout result = createLayout(input);
 
-
-        }
+        System.out.println("Layout entered: \n" + result);
+//        }
     }
 
-    public Layout createLayout(String input) {
-
-        Scanner scanLine = new Scanner(input);
-        List<String[]> inputList = new ArrayList<String[]>();
-
-        while (scanLine.hasNextLine()) {
-            String nextLine = scanLine.nextLine();
-            String[] stuff = nextLine.split(",");
-            inputList.add(stuff);
-        }
-        Layout result = new Layout(inputList.size(), inputList.get(0).length);
-        for (int row = 0; row < inputList.size(); row++) {
-            for (int col = 0; col < inputList.get(row).length; col++) {
+    public static Layout createLayout(int[][] input) {
+        Layout result = new Layout(input.length, input[0].length);
+        for (int row = 0; row < input.length; row++) {
+            for (int col = 0; col < input[row].length; col++) {
+                Entity temp = null;
                 result.insertEntity(null, row, col);
             }
         }
