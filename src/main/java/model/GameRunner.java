@@ -9,25 +9,42 @@ public class GameRunner {
 
     public static void main(String[] args) {
         boolean done = false;
-        Scanner term = new Scanner(System.in);
+        Scanner console = new Scanner(System.in);
 //        while (!done) {
         int[][] input = {
-                {1, 2, 3, 4},
-                {1, 2, 3, 4},
-                {5, 6, 7, 8},
-                {5, 6, 7, 8}};
-        Layout result = createLayout(input);
+                {1, 0, 0, 0},
+                {1, 0, 0, 0},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0}};
+        int timeLimit = 100;
+        Layout result = createLayout(input, timeLimit);
 
         System.out.println("Layout entered: \n" + result);
+        int time = 0;
+        boolean loopContinue = true;
+        while (loopContinue) {
+            result.update();
+            System.out.println("Layout at time step: " + time++ + result);
+            if (result.isGameDone()) {
+                break;
+            }
+            System.out.println("Continue: [y/n]?");
+//            loopContinue = console.nextLine().toLowerCase().contains("y");
+        }
+        System.out.println("Game is done");
 //        }
     }
 
-    public static Layout createLayout(int[][] input) {
-        Layout result = new Layout(input.length, input[0].length);
+    public static Layout createLayout(int[][] input, int timeLimit) {
+        Layout result = new Layout(input.length, input[0].length, timeLimit);
         for (int row = 0; row < input.length; row++) {
             for (int col = 0; col < input[row].length; col++) {
                 Entity temp = null;
-                result.insertEntity(null, row, col);
+                if (input[row][col] == 1) {
+                    temp = new RandomEntity(row, col);
+                    result.insertEntity(temp, row, col);
+                }
+//                result.insertEntity(temp, row, col);
             }
         }
         return result;
