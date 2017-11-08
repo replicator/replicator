@@ -25,9 +25,10 @@ public abstract class Entity {
                 case 5: return SOUTHWEST;
                 case 6: return WEST;
                 case 7: return NORTHWEST;
+                default:
+                    System.out.println("Error inToDirection");
+                    return null;
             }
-            System.out.println("Error inToDirection");
-            return NORTH;
         }
 
         public static Direction rotateLeft(Direction curr) {
@@ -120,9 +121,10 @@ public abstract class Entity {
         return "A";
     }
 
-    // todo: might be cause of bug
+    // todo: make this back to ==
+    // implement: public boolean areAllies(Entity other))
     public boolean equals(Entity other) {
-        if (other == null) { // todo: hack?
+        if (other == null) {
             return false;
         } else {
             return this.getClass() == other.getClass();

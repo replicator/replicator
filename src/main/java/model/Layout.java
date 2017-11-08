@@ -49,35 +49,6 @@ public class Layout {
 //        entities = new TreeMap<Integer, Entity[]>(); TODO: sorted later, to do entity collisions in order
     }
 
-    /**
-     * String representation of layout
-     * @return
-     */
-    @Override
-    public String toString() {
-        char[] lineChar = new char[grid[0].length];
-        Arrays.fill(lineChar, '-');
-        String line = new String(lineChar);
-
-        StringBuilder result = new StringBuilder(line + "\n");
-
-        // todo: in this order b/c of how the input[][] looks
-        for (int row = 0; row < grid.length; row++) {
-
-            for (int col = 0; col < grid[0].length; col++) {
-                String output = "\t";
-                if (grid[row][col] == null) {
-                    output += "0";
-                } else {
-                    output += grid[row][col].toString();
-                }
-                result.append(output);
-            }
-            result.append("\n");
-        }
-        result.append("\n").append(line);
-        return result.toString();
-    }
 
     public Coordinate coordAfterMove(Entity.Direction dir, Coordinate current) {
         // todo: error handle
@@ -115,6 +86,7 @@ public class Layout {
         return newCoord;
     }
 
+    // TODO: one entity + win amount >  other entity
     public boolean isGameDone() {
         if (entities.size() == 0) {
             return true;
@@ -123,8 +95,39 @@ public class Layout {
         }
     }
 
-    public boolean inBounds(int x, int y) {
-        return x >= 0 && x < getWidth() && y >= 0  && y < getHeight();
+
+    public boolean handleAction(Entity e, Entity.Action act) {
+        switch (act) {
+            case MOVE:
+                Entity.Direction orientation = e.getOrientation();
+                Coordinate currPos = new Coordinate(e.getX(), e.getY());
+                Coordinate newPos = coordAfterMove(orientation, currPos);
+//                            if (inBounds(newPos.x, newPos.y) && e.equals(getEntity(newPos.x, newPos.y))) {
+//                                System.out.println("NO EATING TEAMMATES");
+//                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
+//                            }
+                if (inBounds(newPos.x, newPos.y) && !e.equals(getEntity(newPos.x, newPos.y))) {
+                    moveEntity(e, newPos.x, newPos.y);
+                    System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
+                    break;
+                } // else fall through to default
+            case ON_FAIL:
+                // handleAction(?)
+                System.out.println("Attempted to move out of bounds, or hit ally");
+                // currently do nothing
+                break;
+            case NOTHING:
+                break;
+            case ROTATE_LEFT: // TODO
+                e.setOrientation(Entity.Direction.rotateLeft(e.getOrientation()));
+                break;
+            case ROTATE_RIGHT: // TODO
+                e.setOrientation(Entity.Direction.rotateRight(e.getOrientation()));
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -141,35 +144,7 @@ public class Layout {
                         System.out.println(" UHOHHHHH");
                     }
                     Entity.Action act = e.nextAction();
-                    switch (act) {
-                        case MOVE:
-                            Entity.Direction orientation = e.getOrientation();
-                            Coordinate currPos = new Coordinate(e.getX(), e.getY());
-                            Coordinate newPos = coordAfterMove(orientation, currPos);
-//                            if (inBounds(newPos.x, newPos.y) && e.equals(getEntity(newPos.x, newPos.y))) {
-//                                System.out.println("NO EATING TEAMMATES");
-//                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
-//                            }
-                            if (inBounds(newPos.x, newPos.y) && !e.equals(getEntity(newPos.x, newPos.y))) {
-                                moveEntity(e, newPos.x, newPos.y);
-                                System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
-                                break;
-                            } // else fall through to default
-                        case ON_FAIL: // TODO: factor this out into a new method, will work better that way
-                            System.out.println("Attempted to move out of bounds, or hit ally");
-                            // currently do nothing
-                            break;
-                        case NOTHING:
-                            break;
-                        case ROTATE_LEFT: // TODO
-                            e.setOrientation(Entity.Direction.rotateLeft(e.getOrientation()));
-                            break;
-                        case ROTATE_RIGHT: // TODO
-                            e.setOrientation(Entity.Direction.rotateRight(e.getOrientation()));
-                            break;
-                        default:
-                            return false;
-                    }
+                    handleAction(e, act);
                 }
 
             }
@@ -217,7 +192,6 @@ public class Layout {
         return true;
     }
 
-
     /**
      * True if it removed an existing entity
      * @param x
@@ -238,8 +212,6 @@ public class Layout {
         }
     }
 
-
-
     /**
      * Returns the entity at these x, y coords.
      * @param x
@@ -251,6 +223,10 @@ public class Layout {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
         return grid[x][y];
+    }
+
+    public boolean inBounds(int x, int y) {
+        return x >= 0 && x < getWidth() && y >= 0  && y < getHeight();
     }
 
     public int getNumEntities() {
@@ -265,5 +241,34 @@ public class Layout {
         return grid[0].length;
     }
 
+    /**
+     * String representation of layout
+     * @return
+     */
+    @Override
+    public String toString() {
+        char[] lineChar = new char[grid[0].length];
+        Arrays.fill(lineChar, '-');
+        String line = new String(lineChar);
+
+        StringBuilder result = new StringBuilder(line + "\n");
+
+        // todo: in this order b/c of how the input[][] looks
+        for (int row = 0; row < grid.length; row++) {
+
+            for (int col = 0; col < grid[0].length; col++) {
+                String output = "\t";
+                if (grid[row][col] == null) {
+                    output += "0";
+                } else {
+                    output += grid[row][col].toString();
+                }
+                result.append(output);
+            }
+            result.append("\n");
+        }
+        result.append("\n").append(line);
+        return result.toString();
+    }
 
 }

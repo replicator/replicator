@@ -13,9 +13,9 @@ public class GameRunner {
         Scanner console = new Scanner(System.in);
 //        while (!done) {
         int[][] input = {
-                {1, 0, 0, 0},
-                {1, 0, 0, 0},
-                {0, 0, 0, 0},
+                {0, 0, 2, 0},
+                {0, 0, 0, 2},
+                {0, 2, 2, 2},
                 {0, 0, 0, 0}};
         int timeLimit = 100;
         Layout result = createLayout(input, timeLimit);
@@ -52,6 +52,9 @@ public class GameRunner {
                 Entity temp = null;
                 if (input[row][col] == 1) {
                     temp = new RandomEntity(row, col);
+                    result.insertEntity(temp, row, col);
+                } else if (input[row][col] == 2) {
+                    temp = new TurretEntity(row, col);
                     result.insertEntity(temp, row, col);
                 }
 //                result.insertEntity(temp, row, col);

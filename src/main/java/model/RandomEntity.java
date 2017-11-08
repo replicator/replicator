@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Randomly moves about. Reproduces when possible.
+ */
 public class RandomEntity extends Entity {
 
     private static final int ADVANTAGE = 3;
