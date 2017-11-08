@@ -9,6 +9,7 @@ public class GameRunner {
 
     public static void main(String[] args) {
         boolean done = false;
+        boolean consoleRun = true;
         Scanner console = new Scanner(System.in);
 //        while (!done) {
         int[][] input = {
@@ -22,13 +23,22 @@ public class GameRunner {
         System.out.println("Layout entered: \n" + result);
         int time = 0;
         boolean loopContinue = true;
-        while (loopContinue) {
+        while (!result.isGameDone()) {
             result.update();
-            System.out.println("Layout at time step: " + time++ + result);
-            if (result.isGameDone()) {
-                break;
+            System.out.println("Layout at time step: " + time++);
+            System.out.println(result);
+            if (consoleRun) {
+                System.out.println("Continue: [n] to end?");
+                if (console.nextLine().toLowerCase().contains("n")) {
+                    System.out.println("Game forcibly ended");
+                    break;
+                }
+
             }
-            System.out.println("Continue: [y/n]?");
+//            System.out.println("Continue: [y/n]?");
+            System.out.println("Numb entities: " + result.getNumEntities());
+            System.out.println("\n\n\n");
+//            loopContinue = !result.isGameDone();
 //            loopContinue = console.nextLine().toLowerCase().contains("y");
         }
         System.out.println("Game is done");

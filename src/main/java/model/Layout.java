@@ -4,13 +4,20 @@ import java.util.*;
 
 public class Layout {
     private Entity[][] grid;
-    private List<Entity> entities;
+    private Set<Entity> entities; // O(nm) time to update board, number of entities <= nm; n = grid.x, m = grid.y
+    // TODO: how to do with priorities? brute force O(p * nm), p = priorities.
+    // can still do linear O(nm) if we order sets of entities by their priority.
+    // to order by priority, maintain TreeMap<Priority, Set<Entity>>, but log(nm) adjustments (too frequent)
+    // update: nmlog(nm) adjusts + nm pass
+    // how often are adjusts? at worst, very often(entities reproducing/eating each other)
+    // but in 2nd option, nmlog(nm) at best for the entities. this soln depends on the entites behavior and likely to be <nmlog(nm) on avg
+
+    // or, upon updates, nmlog(nm) sort, linear pass to update, each update is O(1) with a hashtable
+    // update: nmlog(nm) sort + nm pass + c adjusts. O(1) when not strictly updating
+
     private int timeLimit;
     private int time;
 
-
-//    private Map<Integer, Entity[]> entities;
-// up to nlogn time to update board
 
     private class Coordinate {
         private int x;
@@ -35,7 +42,7 @@ public class Layout {
             throw new IllegalArgumentException("Layout dimensions must be positive");
         }
         grid = new Entity[x][y];
-        entities = new ArrayList<Entity>(); // no order to who replaces who
+        entities = new HashSet<Entity>(); // no order to who replaces who
         time = 0;
         this.timeLimit = timeLimit;
 
@@ -54,7 +61,9 @@ public class Layout {
 
         StringBuilder result = new StringBuilder(line + "\n");
 
+        // todo: in this order b/c of how the input[][] looks
         for (int row = 0; row < grid.length; row++) {
+
             for (int col = 0; col < grid[0].length; col++) {
                 String output = "\t";
                 if (grid[row][col] == null) {
@@ -125,67 +134,89 @@ public class Layout {
     public boolean update() {
         if (!isGameDone()) {
             time++;
-            for (int i = 0; i < entities.size(); i++) {
-//            for (Entity e : entities) {
-                Entity e = entities.get(i);
-                if (e == null) {
-                    System.out.println("uhoh");
-                }
-                Entity.Action act = e.nextAction();
-                switch (act) {
-                    case MOVE: // TODO: currently just deletes everything else
-                        Entity.Direction orientation = e.getOrientation();
-                        Coordinate currPos = new Coordinate(e.getX(), e.getY());
-                        Coordinate newPos = coordAfterMove(orientation, currPos);
-
-                        if (inBounds(newPos.x, newPos.y)) {
-                            if (!insertEntity(e, newPos.x, newPos.y)) { // if there was an entity being replaced, delete it
-                                i--;
-                            }
-                            removeEntity(currPos.x, currPos.y);
-                        } // does nothing if outof bounds
-                        break;
-                    case NOTHING:
-                        break;
-                    case ROTATE_LEFT: // TODO
-                        e.setOrientation(Entity.Direction.rotateLeft(e.getOrientation()));
-                        break;
-                    case ROTATE_RIGHT: // TODO
-                        e.setOrientation(Entity.Direction.rotateRight(e.getOrientation()));
-                        break;
-                    default:
-                        return false;
+            Set<Entity> entityCpy = new HashSet<>(entities);
+            for (Entity e: entityCpy) {
+                if (entities.contains(e)) {
+                    if (e == null) {
+                        System.out.println(" UHOHHHHH");
+                    }
+                    Entity.Action act = e.nextAction();
+                    switch (act) {
+                        case MOVE:
+                            Entity.Direction orientation = e.getOrientation();
+                            Coordinate currPos = new Coordinate(e.getX(), e.getY());
+                            Coordinate newPos = coordAfterMove(orientation, currPos);
+//                            if (inBounds(newPos.x, newPos.y) && e.equals(getEntity(newPos.x, newPos.y))) {
+//                                System.out.println("NO EATING TEAMMATES");
+//                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
+//                            }
+                            if (inBounds(newPos.x, newPos.y) && !e.equals(getEntity(newPos.x, newPos.y))) {
+                                moveEntity(e, newPos.x, newPos.y);
+                                System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
+                                break;
+                            } // else fall through to default
+                        case ON_FAIL: // TODO: factor this out into a new method, will work better that way
+                            System.out.println("Attempted to move out of bounds, or hit ally");
+                            // currently do nothing
+                            break;
+                        case NOTHING:
+                            break;
+                        case ROTATE_LEFT: // TODO
+                            e.setOrientation(Entity.Direction.rotateLeft(e.getOrientation()));
+                            break;
+                        case ROTATE_RIGHT: // TODO
+                            e.setOrientation(Entity.Direction.rotateRight(e.getOrientation()));
+                            break;
+                        default:
+                            return false;
+                    }
                 }
 
             }
             return true;
         } else {
+            System.out.println("numb entities: " + entities.size());
             return false;
         }
     }
 
-    // todo: inserting a null entity
+    // todo: regression test. bug of entities' x/y value not being updated
+
+    // todo: inserting a null
+    // todo: definition of t/f returns
     public boolean insertEntity(Entity ent, int x, int y) {
         // true if nothing else there
         // false if it replaces
         // throw if fail
-        if (ent == null) {
-            return false;
-        }
-
         if (!inBounds(x, y)) {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
-        } else if (grid[x][y] != null) {
+        }
+        if (grid[x][y] != null) {
             removeEntity(x, y);
             grid[x][y] = ent;
             entities.add(ent);
+            ent.setX(x);
+            ent.setY(y);
             return false;
         } else {
             grid[x][y] = ent;
             entities.add(ent);
+            ent.setX(x);
+            ent.setY(y);
             return true;
         }
     }
+
+    // move ent to x/y
+    public boolean moveEntity(Entity ent, int x, int y) {
+        if (!inBounds(x, y)) {
+            throw new IllegalArgumentException("Can only move entities in the grid");
+        }
+        removeEntity(ent.getX(), ent.getY());
+        insertEntity(ent, x, y);
+        return true;
+    }
+
 
     /**
      * True if it removed an existing entity
@@ -200,6 +231,7 @@ public class Layout {
         if (grid[x][y] == null) {
             return false;
         } else {
+            System.out.println(" removed at : (" + x + ", " + y + ")");
             entities.remove(grid[x][y]); // TODO: delete the entity at this location, not any entity of same type
             grid[x][y] = null;
             return true;
@@ -219,6 +251,10 @@ public class Layout {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
         return grid[x][y];
+    }
+
+    public int getNumEntities() {
+        return entities.size();
     }
 
     public int getWidth() {

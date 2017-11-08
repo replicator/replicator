@@ -14,6 +14,7 @@ public abstract class Entity {
             this.value = value;
         }
 
+        // todo: make this + rotate pretty
         public static Direction intToDirection(int i) {
             switch (i) {
                 case 0: return NORTH;
@@ -50,7 +51,7 @@ public abstract class Entity {
     }
 
     public static enum Action { // USE, REPRODUCE, OBSERVE, EAT later
-        MOVE, NOTHING, ROTATE_LEFT, ROTATE_RIGHT
+        MOVE, NOTHING, ROTATE_LEFT, ON_FAIL, ROTATE_RIGHT
     }
 
     public static enum Species {
@@ -119,8 +120,13 @@ public abstract class Entity {
         return "A";
     }
 
+    // todo: might be cause of bug
     public boolean equals(Entity other) {
-        return this.getClass() == other.getClass();
+        if (other == null) { // todo: hack?
+            return false;
+        } else {
+            return this.getClass() == other.getClass();
+        }
     }
 
 //    public int getDefense() {
