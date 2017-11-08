@@ -12,11 +12,22 @@ public class Layout {
     // how often are adjusts? at worst, very often(entities reproducing/eating each other)
     // but in 2nd option, nmlog(nm) at best for the entities. this soln depends on the entites behavior and likely to be <nmlog(nm) on avg
 
+    // or unordered in HashMap<Priority, Set<Entity>>, sort on demand
     // or, upon updates, nmlog(nm) sort, linear pass to update, each update is O(1) with a hashtable
     // update: nmlog(nm) sort + nm pass + c adjusts. O(1) when not strictly updating
 
+    // ordered option is < xlog(x) on avg/assuming all dont collide while unordered is == xlog(x) for x = entitiy #
+
+//    private Map<Integer, Set<Entity>> entities;
+
     private int timeLimit;
     private int time;
+
+    // TODO
+    public String getNumOfEachEntity() {
+        return "to be implemented";
+//        return numOfEachEntity;
+    }
 
 
     private class Coordinate {
@@ -42,6 +53,7 @@ public class Layout {
             throw new IllegalArgumentException("Layout dimensions must be positive");
         }
         grid = new Entity[x][y];
+//        entities = new TreeMap<>();
         entities = new HashSet<Entity>(); // no order to who replaces who
         time = 0;
         this.timeLimit = timeLimit;
@@ -102,13 +114,15 @@ public class Layout {
                 Entity.Direction orientation = e.getOrientation();
                 Coordinate currPos = new Coordinate(e.getX(), e.getY());
                 Coordinate newPos = coordAfterMove(orientation, currPos);
-//                            if (inBounds(newPos.x, newPos.y) && e.equals(getEntity(newPos.x, newPos.y))) {
+//                            if (inBounds(newPos.x, newPos.y) && e.isAlly(getEntity(newPos.x, newPos.y))) {
 //                                System.out.println("NO EATING TEAMMATES");
 //                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
 //                            }
-                if (inBounds(newPos.x, newPos.y) && !e.equals(getEntity(newPos.x, newPos.y))) {
+                if (inBounds(newPos.x, newPos.y) && !e.isAlly(getEntity(newPos.x, newPos.y))) {
                     moveEntity(e, newPos.x, newPos.y);
-                    System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
+                    if (GameRunner.DEBUG) {
+                        System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
+                    }
                     break;
                 } // else fall through to default
             case ON_FAIL:
@@ -118,11 +132,17 @@ public class Layout {
                 break;
             case NOTHING:
                 break;
-            case ROTATE_LEFT: // TODO
-                e.setOrientation(Entity.Direction.rotateLeft(e.getOrientation()));
+            case ROTATE_CCW: // TODO
+                Entity.Direction old = e.getOrientation();
+                Entity.Direction newOrient = Entity.Direction.rotateCCW(old);
+                if (GameRunner.DEBUG) {
+                    System.out.println("Rotating entity at: (" + e.getX() + ", " + e.getY() + ") from : " + old + " to " + newOrient);
+                }
+                e.setOrientation(newOrient);
+//                e.setOrientation(Entity.Direction.rotateCCW(e.getOrientation()));
                 break;
-            case ROTATE_RIGHT: // TODO
-                e.setOrientation(Entity.Direction.rotateRight(e.getOrientation()));
+            case ROTATE_CW: // TODO
+                e.setOrientation(Entity.Direction.rotateCW(e.getOrientation()));
                 break;
             default:
                 return false;
@@ -140,8 +160,13 @@ public class Layout {
             Set<Entity> entityCpy = new HashSet<>(entities);
             for (Entity e: entityCpy) {
                 if (entities.contains(e)) {
+                    if (GameRunner.DEBUG)
+                        if (GameRunner.DEBUG) {
+                            System.out.println("Modifying entity at: (" + e.getX() + ", " + e.getY() + ")");
+                        }
                     if (e == null) {
-                        System.out.println(" UHOHHHHH");
+                        System.out.println(" UHOHHHHH attempting to update a null entity");
+                        System.exit(1);
                     }
                     Entity.Action act = e.nextAction();
                     handleAction(e, act);

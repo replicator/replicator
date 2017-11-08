@@ -9,13 +9,18 @@ public abstract class Entity {
      */
     public static enum Direction {
         NORTH (0), NORTHEAST (1), EAST (2), SOUTHEAST (3), SOUTH (4), SOUTHWEST (5), WEST (6), NORTHWEST (7);
-        private int value;
+        private final int value;
         Direction(int value) {
             this.value = value;
         }
 
         // todo: make this + rotate pretty
-        public static Direction intToDirection(int i) {
+        private static Direction intToDirection(int i) {
+            if (i < 0) {
+                i = 7;
+            } else if (i > 7) {
+                i = 0;
+            }
             switch (i) {
                 case 0: return NORTH;
                 case 1: return NORTHEAST;
@@ -31,28 +36,18 @@ public abstract class Entity {
             }
         }
 
-        public static Direction rotateLeft(Direction curr) {
-            curr.value -= 1;
-            if (curr.value < 0) {
-                curr.value = 7;
-            } else if (curr.value > 7) {
-                curr.value = 0;
-            }
-            return intToDirection(curr.value);
+        // rotate counter clockwise
+        public static Direction rotateCCW(Direction curr) {
+            return intToDirection(curr.value - 1);
         }
-        public static Direction rotateRight(Direction curr) {
-            curr.value += 1;
-            if (curr.value < 0) {
-                curr.value = 7;
-            } else if (curr.value > 7) {
-                curr.value = 0;
-            }
-            return intToDirection(curr.value);
+        // rotate clockwise
+        public static Direction rotateCW(Direction curr) {
+            return intToDirection(curr.value + 1);
         }
     }
 
     public static enum Action { // USE, REPRODUCE, OBSERVE, EAT later
-        MOVE, NOTHING, ROTATE_LEFT, ON_FAIL, ROTATE_RIGHT
+        MOVE, NOTHING, ROTATE_CCW, ON_FAIL, ROTATE_CW
     }
 
     public static enum Species {
@@ -123,7 +118,15 @@ public abstract class Entity {
 
     // todo: make this back to ==
     // implement: public boolean areAllies(Entity other))
-    public boolean equals(Entity other) {
+//    public boolean equals(Entity other) {
+//        if (other == null) {
+//            return false;
+//        } else {
+//            return this.getClass() == other.getClass();
+//        }
+//    }
+
+    public boolean isAlly(Entity other) {
         if (other == null) {
             return false;
         } else {
