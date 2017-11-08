@@ -127,6 +127,9 @@ public abstract class Entity {
 //    }
 
     public boolean isAlly(Entity other) {
+        if (false) {
+            System.out.println("le");
+        }
         if (other == null) {
             return false;
         } else {

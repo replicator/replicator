@@ -26,7 +26,37 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.3.1'
 }
 
+task here1() {
+    println 'here1'
+}
+
+task fail() {
+    println 'here but not yet fail'
+    doLast {
+        println 'i failed'
+        throw new GradleException('i faileds')
+    }
+}
+fail.enabled = false
+
+
+task here2() {
+    println 'here2'
+}
+
+sourceSets {
+    integrationTest {
+        println 'Doing integration tests (empty)'
+//        java {
+//            srcDir 'src/integrationTest'
+//        }
+    }
+}
+
 run {
+//    fail.enabled = true
+//    dependsOn(fail)
     // make sure to accept console input
     standardInput = System.in
+
 }
