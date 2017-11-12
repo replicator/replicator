@@ -37,7 +37,8 @@ public class Layout {
      * Creates a 2d layout with width x and height y
      * @param x the width of the layout to be created
      * @param y the height of the layout to be created
-     * @throws IllegalArgumentException if x or y are invalid sizes (x <= 0 || y <= 0)
+     * @param timeLimit the time limit of this game
+     * @throws IllegalArgumentException if x or y are invalid sizes (x &#8804; 0 || y &#8805; 0)
      *
      */
     public Layout(int x, int y, int timeLimit) throws IllegalArgumentException {
@@ -239,8 +240,9 @@ public class Layout {
 
     /**
      * String representation of layout
-     * @return
+     * @return the string representation of this Layout
      */
+    // TODO: make it print in better x/y format
     @Override
     public String toString() {
         char[] lineChar = new char[grid[0].length];

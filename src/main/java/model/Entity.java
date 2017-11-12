@@ -8,7 +8,7 @@ import java.util.Random;
  */
 public abstract class Entity {
 
-    private Entity.Coordinate coordinate;
+    private Coordinate coordinate;
 
     private static final Random r = new Random();
 
@@ -36,7 +36,7 @@ public abstract class Entity {
          * @param dir the direction in which this Coordinate is moving 1 step in
          * @return the new Coordinate after this has taken 1 step in direction dir
          */
-        public Coordinate coordAfterMove(Entity.Direction dir) {
+        public Coordinate coordAfterMove(Direction dir) {
             // todo: error handle?
             // todo: moving multiple times?
             int newY = y;
@@ -247,8 +247,6 @@ public abstract class Entity {
     // TODO: public abstract void fight();
     // TODO: fight = move for now
 
-//    public abstract boolean move();
-//    public abstract boolean rotate();
 //    public abstract boolean use();
 //    public abstract boolean reproduce();
 //    public abstract int observe();
