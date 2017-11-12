@@ -189,15 +189,15 @@ public abstract class Entity {
     }
 
     public void setX(int newX) {
-        setCoordinate(newX, coordinate.y);
+        setCoordinate(new Coordinate(newX, coordinate.y));
     }
 
     public void setY(int newY) {
-        setCoordinate(coordinate.x, newY);
+        setCoordinate(new Coordinate(coordinate.x, newY));
     }
 
-    public void setCoordinate(int x, int y) {
-        coordinate = new Coordinate(x, y);
+    public void setCoordinate(Coordinate coord) {
+        coordinate = coord;
     }
 
     public int getX() {
@@ -217,7 +217,7 @@ public abstract class Entity {
     }
 
     public String toString() {
-        return "A";
+        return "X";
     }
 
 

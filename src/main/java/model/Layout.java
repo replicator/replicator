@@ -145,37 +145,32 @@ public class Layout {
 
     // todo: inserting a null
     // todo: definition of t/f returns
-    public boolean insertEntity(Entity ent, Coordinate coord) {
+    // ASSUME: entity has not already been inserted?
+    public boolean insertEntity(Entity ent) {
         // true if nothing else there
         // false if it replaces
         // throw if fail
-        int x = coord.getX();
-        int y = coord.getY();
-        if (!inBounds(coord)) {
+        if (!inBounds(ent.getCoordinate())) {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
-        if (getEntity(coord) != null) {
-            removeEntity(coord);
-
-            grid[x][y] = ent;
-            entities.add(ent);
-            ent.setCoordinate(x, y);
-            return false;
-        } else {
-            grid[x][y] = ent;
-            entities.add(ent);
-            ent.setCoordinate(x, y);
-            return true;
-        }
+        removeEntity(ent.getCoordinate());
+        grid[ent.getX()][ent.getY()] = ent;
+        entities.add(ent);
+        return true;
     }
 
     // move ent to x/y
+    // An entity must already be i n the grid
+    // todo: add regression test, where entities moved onto each other, the number of entities went down, but the
+    // todo: representation (grid) still showed them
     public boolean moveEntity(Entity ent, Coordinate coord) {
         if (!inBounds(coord)) {
             throw new IllegalArgumentException("Can only move entities in the grid");
         }
-        removeEntity(coord);
-        insertEntity(ent, coord);
+        // todo: could do this manually, and save some calls
+        removeEntity(ent.getCoordinate()); // remove entity at prior coordinate
+        ent.setCoordinate(coord);
+        insertEntity(ent); // insert entity at new coordinate
         return true;
     }
 

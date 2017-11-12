@@ -13,10 +13,10 @@ public class GameRunner {
     public static void main(String[] args) {
         Scanner console = new Scanner(System.in);
         int[][] input = {
-                {0, 0, 2, 0},
+                {1, 0, 2, 0},
                 {0, 0, 0, 2},
                 {0, 2, 2, 2},
-                {0, 0, 0, 0}};
+                {0, 1, 0, 0}};
         int timeLimit = 100;
         Layout result = createLayout(input, timeLimit);
 
@@ -52,10 +52,10 @@ public class GameRunner {
                 Coordinate coord = new Coordinate(row, col);
                 if (input[row][col] == 1) {
                     e = new RandomEntity(coord);
-                    result.insertEntity(e, coord);
+                    result.insertEntity(e);
                 } else if (input[row][col] == 2) {
                     e = new TurretEntity(coord);
-                    result.insertEntity(e, coord);
+                    result.insertEntity(e);
                 }
 //                result.insertEntity(temp, row, col);
             }

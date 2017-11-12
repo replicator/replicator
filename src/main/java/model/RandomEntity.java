@@ -22,18 +22,21 @@ public class RandomEntity extends Entity {
         super(ADVANTAGE, SPEED, DEFENSE, coord);
     }
 
+    /**
+     * Returns the next action for this random entity. Randomnly picks one action from all possible actions.
+     * @return the next action for this RandomEntity to take
+     */
     @Override
     public Action nextAction() {
         Action[] possibleActions = Action.values();
         int rand = getRandom().nextInt(possibleActions.length);
-//        if (possibleActions[rand] == null) {
-//            System.out.println("action is null???");
-//        } else {
-//            System.out.println("action: " + rand);
-//        }
         return possibleActions[rand];
     }
 
+    /**
+     * String representation of this entity
+     * @return the String representation of this entity
+     */
     @Override
     public String toString() {
         return "R";
