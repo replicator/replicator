@@ -60,6 +60,11 @@ public class Layout {
 
     // TODO: one entity + win amount >  other entity
 
+    /**
+     * Returns true if the game is done. A game is done when there are no more entities or the time has passed the
+     * time limit
+     * @return true if the game is done
+     */
     public boolean isGameDone() {
         if (entities.size() == 0) {
             return true;
@@ -164,8 +169,11 @@ public class Layout {
     // todo: add regression test, where entities moved onto each other, the number of entities went down, but the
     // todo: representation (grid) still showed them
     public boolean moveEntity(Entity ent, Coordinate coord) {
+        if (!entities.contains(ent)) {
+            throw new IllegalArgumentException("Can only move entities that already exist in the grid");
+        }
         if (!inBounds(coord)) {
-            throw new IllegalArgumentException("Can only move entities in the grid");
+            throw new IllegalArgumentException("Can only move entities within the grid");
         }
         // todo: could do this manually, and save some calls
         removeEntity(ent.getCoordinate()); // remove entity at prior coordinate
@@ -177,7 +185,7 @@ public class Layout {
     /**
      * Removes the Entity at this coordinate. Returns true if an Entity was actually removed
      * @param coord the coordinate to remove Entities from
-     * @return true if an Entity was removed from the coord
+     * @return true if an Entity was removed from the coord, false if there was no Entity at the coord
      * @throws IllegalArgumentException if coord is outside the layout bounds
      */
     public boolean removeEntity(Coordinate coord) {
@@ -189,7 +197,9 @@ public class Layout {
         } else {
             int x = coord.getX();
             int y = coord.getY();
-            System.out.println(" removed at : (" + x + ", " + y + ")");
+            if (GameRunner.DEBUG) {
+                System.out.println(" removed at : (" + x + ", " + y + ")");
+            }
             entities.remove(getEntity(coord)); // TODO: delete the entity at this location, not any entity of same type
             grid[coord.getX()][coord.getY()] = null;
             return true;
@@ -199,7 +209,7 @@ public class Layout {
     /**
      * Returns the entity at this coordinate
      * @param coord where to find the Entity to return
-     * @return Entity at this coordinate
+     * @return Entity at this coordinate, or null if there is no Entity
      * @throws IllegalArgumentException if coord is outside the layout's bounds
      * @see <code>inBounds</code>
      */

@@ -7,14 +7,18 @@ import static model.Entity.Direction.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import model.Entity.Coordinate;
+import model.Entity.Direction;
 
 public class EntityTest {
-    Entity e = null;
+    Entity[] inputs;
 
     @Before
     public void setup() {
-        e = new TurretEntity(new Coordinate(0, 0));
-        e.setOrientation(Entity.Direction.NORTH);
+        Coordinate origin = new Coordinate(0, 0);
+        inputs = new Entity[] {new RandomEntity(origin), new TurretEntity(origin)};
+        for (Entity e: inputs) {
+            e.setOrientation(Direction.NORTH);
+        }
     }
 
     // regression test. previously failed when Direction + rotateCCW/cw was on mutable Directions
@@ -22,8 +26,10 @@ public class EntityTest {
     public void testRotateCCW() {
         Entity.Direction[] ccwOrder = {NORTHWEST, WEST, SOUTHWEST, SOUTH, SOUTHEAST, EAST, NORTHEAST, NORTH};
         for (Entity.Direction dir : ccwOrder) {
-            e.setOrientation(Entity.Direction.rotateCCW(e.getOrientation()));
-            assertEquals(dir, e.getOrientation());
+            for (Entity e : inputs) {
+                e.setOrientation(Entity.Direction.rotateCCW(e.getOrientation()));
+                assertEquals(dir, e.getOrientation());
+            }
         }
 
     }
@@ -32,13 +38,10 @@ public class EntityTest {
     public void testRotateCW() {
         Entity.Direction[] cwOrder = {NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST, NORTH};
         for (Entity.Direction dir : cwOrder) {
-            e.setOrientation(Entity.Direction.rotateCW(e.getOrientation()));
-            assertEquals(dir, e.getOrientation());
+            for (Entity e : inputs) {
+                e.setOrientation(Entity.Direction.rotateCW(e.getOrientation()));
+                assertEquals(dir, e.getOrientation());
+            }
         }
-    }
-
-    @Test
-    public void testEntity() {
-        assertTrue(true);
     }
 }
