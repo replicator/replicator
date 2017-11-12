@@ -1,7 +1,9 @@
 package model;
 
 /**
- * Essentially spins and kills/reproduces when possible
+ * A stationary entity that spins and reproduces when possible.
+ * @author Michael Shintaku
+ * @see model.Entity
  */
 public class TurretEntity extends Entity {
 
@@ -9,8 +11,15 @@ public class TurretEntity extends Entity {
     private static final int SPEED = 3;
     private static final int DEFENSE = 3;
 
-    public TurretEntity(int x, int y) {
-        super(ADVANTAGE, SPEED, DEFENSE, x, y);
+    /**
+     * Creates a TurretEntity at the given coordinate, with the given advantage, speed,
+     * defense, x, y, values.  The Entity has a random starting orientation
+     *
+     * @param coord the coordinate in the layout where this entity is being placed
+     * @see Coordinate
+     */
+    public TurretEntity(Coordinate coord) {
+        super(ADVANTAGE, SPEED, DEFENSE, coord);
     }
 
     @Override

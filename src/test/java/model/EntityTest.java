@@ -6,13 +6,14 @@ import org.junit.Test;
 import static model.Entity.Direction.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import model.Entity.Coordinate;
 
 public class EntityTest {
     Entity e = null;
 
     @Before
     public void setup() {
-        e = new TurretEntity(0, 0);
+        e = new TurretEntity(new Coordinate(0, 0));
         e.setOrientation(Entity.Direction.NORTH);
     }
 

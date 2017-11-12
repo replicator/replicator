@@ -2,7 +2,88 @@ package model;
 
 import java.util.Random;
 
+/**
+ * @author Michael Shintaku
+ * @see Layout
+ */
 public abstract class Entity {
+
+    private Entity.Coordinate coordinate;
+
+    private static final Random r = new Random();
+
+    private int advantage;
+    private int speed;
+    //    private int defense;
+    private Direction orientation;
+
+
+    /**
+     * An immutable representation of an (x, y) position in the Layout
+     */
+    public static class Coordinate {
+        private final int x;
+        private final int y;
+
+        public Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        /**
+         * Finds and returns a new Coordinate after moving 1 step in the direction dir. Does not check bounds with
+         * Layout or consider contents of Layout
+         * @param dir the direction in which this Coordinate is moving 1 step in
+         * @return the new Coordinate after this has taken 1 step in direction dir
+         */
+        public Coordinate coordAfterMove(Entity.Direction dir) {
+            // todo: error handle?
+            // todo: moving multiple times?
+            int newY = y;
+            int newX = x;
+            switch(dir) {
+                case NORTH:
+                    newY += 1;
+                    break;
+                case NORTHEAST:
+                    newY += 1;
+                    newX += 1;
+                    break;
+                case EAST:
+                    newX += 1;
+                    break;
+                case SOUTHEAST:
+                    newY -= 1;
+                    newX += 1;
+                    break;
+                case SOUTH:
+                    newY -= 1;
+                    break;
+                case SOUTHWEST:
+                    newY -= 1;
+                    newX -= 1;
+                    break;
+                case WEST:
+                    newX -= 1;
+                    break;
+                case NORTHWEST:
+                    newX -= 1;
+                    newY += 1;
+                    break;
+            }
+            return new Coordinate(newX, newY);
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+
+    }
 
     /**
      * The directions that the entity can witness
@@ -55,53 +136,76 @@ public abstract class Entity {
     }
 
 
-    private static final Random r = new Random();
-
-    private int advantage;
-    private int speed;
-//    private int defense;
-    private Direction orientation;
-    private int x;
-    private int y;
 
 
-    public Entity(int advantage, int speed, int defense, int x, int y) {
+    /**
+     * Creates an Entity at the given coordinate, with the given advantage, speed,
+     * defense, x, y, values.  The Entity has a random starting orientation
+     *
+     * @param advantage the advantage of this Entity over other Entities
+     * @param speed the speed of this Entity
+     * @param defense TODO: the defense attribute of this entity
+     * @param coord the coordinate in the layout where this entity is being placed
+     * @see Coordinate
+     */
+    public Entity(int advantage, int speed, int defense, Coordinate coord) {
         Direction[] possibleStart = Direction.values();
         orientation = possibleStart[getRandom().nextInt(possibleStart.length)];
         this.advantage = advantage;
         this.speed = speed;
-        this.x = x;
-        this.y = y;
-
-//        this.defense = defense;
+        this.coordinate = coord;
     }
 
+    /**
+     * Sets this Entity's orientation to the given @param newOrient
+     * @param newOrient the Orientation that this Entity is set to
+     */
     public void setOrientation(Direction newOrient) {
         orientation = newOrient;
     }
 
+    /**
+     * Gets the current orientation of this Entity
+     * @return the current Orientation of this Entity
+     */
     public Direction getOrientation() {
         return orientation;
     }
 
+    /**
+     * Gets the Random object
+     * @return the Random object
+     */
     public Random getRandom() {
         return r;
     }
 
+    /**
+     * Returns the Coordinate this Entity is at
+     * @return the coordinate of this entity
+     */
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
+
     public void setX(int newX) {
-        x = newX;
+        setCoordinate(newX, coordinate.y);
     }
 
     public void setY(int newY) {
-        y = newY;
+        setCoordinate(coordinate.x, newY);
+    }
+
+    public void setCoordinate(int x, int y) {
+        coordinate = new Coordinate(x, y);
     }
 
     public int getX() {
-        return x;
+        return coordinate.x;
     }
 
     public int getY() {
-        return y;
+        return coordinate.y;
     }
 
     public int getAdvantage() {
@@ -116,16 +220,12 @@ public abstract class Entity {
         return "A";
     }
 
-    // todo: make this back to ==
-    // implement: public boolean areAllies(Entity other))
-//    public boolean equals(Entity other) {
-//        if (other == null) {
-//            return false;
-//        } else {
-//            return this.getClass() == other.getClass();
-//        }
-//    }
 
+    /**
+     * Returns true if other is an ally (non-enemy) with this Entity
+     * @param other the Entity to compare to
+     * @return true if other is an ally (non-enemy) with this Entity
+     */
     public boolean isAlly(Entity other) {
         if (other == null) {
             return false;
@@ -138,6 +238,10 @@ public abstract class Entity {
 //        return defense;
 //    }
 
+    /**
+     * Used to get the next action this Entity will try to take for the next game update.
+     * @return the Action for this Entity to attempt to take in the next game update
+     */
     public abstract Action nextAction();
 
     // TODO: public abstract void fight();

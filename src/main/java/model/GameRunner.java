@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import model.Entity.Coordinate;
 
 public class GameRunner {
     public static final boolean DEBUG = false;
@@ -47,13 +48,14 @@ public class GameRunner {
         Layout result = new Layout(input.length, input[0].length, timeLimit);
         for (int row = 0; row < input.length; row++) {
             for (int col = 0; col < input[row].length; col++) {
-                Entity temp = null;
+                Entity e = null;
+                Coordinate coord = new Coordinate(row, col);
                 if (input[row][col] == 1) {
-                    temp = new RandomEntity(row, col);
-                    result.insertEntity(temp, row, col);
+                    e = new RandomEntity(coord);
+                    result.insertEntity(e, coord);
                 } else if (input[row][col] == 2) {
-                    temp = new TurretEntity(row, col);
-                    result.insertEntity(temp, row, col);
+                    e = new TurretEntity(coord);
+                    result.insertEntity(e, coord);
                 }
 //                result.insertEntity(temp, row, col);
             }

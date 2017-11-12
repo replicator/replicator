@@ -1,6 +1,9 @@
 package model;
 
 import java.util.*;
+import model.Entity.Coordinate;
+import model.Entity.Direction;
+import model.Entity.Action;
 
 public class Layout {
     private Entity[][] grid;
@@ -30,24 +33,13 @@ public class Layout {
     }
 
 
-    private class Coordinate {
-        private int x;
-        private int y;
-
-        private Coordinate(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-    }
-
-
     /**
-     * Create the 2d layout with x, y size
-     * @param x the width of the layout.  x > 0 or throws an IllegalArgumentException
-     * @param y the height of the layout. y > 0 or throws an IllegalArgumentException
+     * Creates a 2d layout with width x and height y
+     * @param x the width of the layout to be created
+     * @param y the height of the layout to be created
+     * @throws IllegalArgumentException if x or y are invalid sizes (x <= 0 || y <= 0)
+     *
      */
-
     public Layout(int x, int y, int timeLimit) throws IllegalArgumentException {
         if (x < 1 || y < 1) {
             throw new IllegalArgumentException("Layout dimensions must be positive");
@@ -62,43 +54,11 @@ public class Layout {
     }
 
 
-    public Coordinate coordAfterMove(Entity.Direction dir, Coordinate current) {
-        // todo: error handle
-        Coordinate newCoord = new Coordinate(current.x, current.y);
-        switch(dir) {
-            case NORTH:
-                newCoord.y += 1;
-                break;
-            case NORTHEAST:
-                newCoord.y += 1;
-                newCoord.x += 1;
-                break;
-            case EAST:
-                newCoord.x += 1;
-                break;
-            case SOUTHEAST:
-                newCoord.y -= 1;
-                newCoord.x += 1;
-                break;
-            case SOUTH:
-                newCoord.y -= 1;
-                break;
-            case SOUTHWEST:
-                newCoord.y -= 1;
-                newCoord.x -= 1;
-                break;
-            case WEST:
-                newCoord.x -= 1;
-                break;
-            case NORTHWEST:
-                newCoord.x -= 1;
-                newCoord.y += 1;
-                break;
-        }
-        return newCoord;
-    }
+
+
 
     // TODO: one entity + win amount >  other entity
+
     public boolean isGameDone() {
         if (entities.size() == 0) {
             return true;
@@ -108,20 +68,20 @@ public class Layout {
     }
 
 
-    public boolean handleAction(Entity e, Entity.Action act) {
+    public boolean handleAction(Entity e, Action act) {
         switch (act) {
             case MOVE:
-                Entity.Direction orientation = e.getOrientation();
-                Coordinate currPos = new Coordinate(e.getX(), e.getY());
-                Coordinate newPos = coordAfterMove(orientation, currPos);
+                Direction orientation = e.getOrientation();
+                Coordinate currPos = e.getCoordinate();
+                Coordinate newPos = currPos.coordAfterMove(orientation);
 //                            if (inBounds(newPos.x, newPos.y) && e.isAlly(getEntity(newPos.x, newPos.y))) {
 //                                System.out.println("NO EATING TEAMMATES");
 //                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
 //                            }
-                if (inBounds(newPos.x, newPos.y) && !e.isAlly(getEntity(newPos.x, newPos.y))) {
-                    moveEntity(e, newPos.x, newPos.y);
+                if (inBounds(newPos) && !e.isAlly(getEntity(newPos))) {
+                    moveEntity(e, newPos);
                     if (GameRunner.DEBUG) {
-                        System.out.println("old: (" + currPos.x + ", " + currPos.y + ") to new: (" + newPos.x + ", " + newPos.y + ")");
+                        System.out.println("old: (" + e.getX() + ", " + e.getY() + ") to new: (" + newPos.getX() + ", " + newPos.getX() + ")");
                     }
                     break;
                 } // else fall through to default
@@ -133,16 +93,16 @@ public class Layout {
             case NOTHING:
                 break;
             case ROTATE_CCW: // TODO
-                Entity.Direction old = e.getOrientation();
-                Entity.Direction newOrient = Entity.Direction.rotateCCW(old);
+                Direction old = e.getOrientation();
+                Direction newOrient = Direction.rotateCCW(old);
                 if (GameRunner.DEBUG) {
                     System.out.println("Rotating entity at: (" + e.getX() + ", " + e.getY() + ") from : " + old + " to " + newOrient);
                 }
                 e.setOrientation(newOrient);
-//                e.setOrientation(Entity.Direction.rotateCCW(e.getOrientation()));
+//                e.setOrientation(Direction.rotateCCW(e.getOrientation()));
                 break;
             case ROTATE_CW: // TODO
-                e.setOrientation(Entity.Direction.rotateCW(e.getOrientation()));
+                e.setOrientation(Direction.rotateCW(e.getOrientation()));
                 break;
             default:
                 return false;
@@ -168,7 +128,7 @@ public class Layout {
                         System.out.println(" UHOHHHHH attempting to update a null entity");
                         System.exit(1);
                     }
-                    Entity.Action act = e.nextAction();
+                    Action act = e.nextAction();
                     handleAction(e, act);
                 }
 
@@ -184,73 +144,84 @@ public class Layout {
 
     // todo: inserting a null
     // todo: definition of t/f returns
-    public boolean insertEntity(Entity ent, int x, int y) {
+    public boolean insertEntity(Entity ent, Coordinate coord) {
         // true if nothing else there
         // false if it replaces
         // throw if fail
-        if (!inBounds(x, y)) {
+        int x = coord.getX();
+        int y = coord.getY();
+        if (!inBounds(coord)) {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
-        if (grid[x][y] != null) {
-            removeEntity(x, y);
+        if (getEntity(coord) != null) {
+            removeEntity(coord);
+
             grid[x][y] = ent;
             entities.add(ent);
-            ent.setX(x);
-            ent.setY(y);
+            ent.setCoordinate(x, y);
             return false;
         } else {
             grid[x][y] = ent;
             entities.add(ent);
-            ent.setX(x);
-            ent.setY(y);
+            ent.setCoordinate(x, y);
             return true;
         }
     }
 
     // move ent to x/y
-    public boolean moveEntity(Entity ent, int x, int y) {
-        if (!inBounds(x, y)) {
+    public boolean moveEntity(Entity ent, Coordinate coord) {
+        if (!inBounds(coord)) {
             throw new IllegalArgumentException("Can only move entities in the grid");
         }
-        removeEntity(ent.getX(), ent.getY());
-        insertEntity(ent, x, y);
+        removeEntity(coord);
+        insertEntity(ent, coord);
         return true;
     }
 
     /**
-     * True if it removed an existing entity
-     * @param x
-     * @param y
-     * @return
+     * Removes the Entity at this coordinate. Returns true if an Entity was actually removed
+     * @param coord the coordinate to remove Entities from
+     * @return true if an Entity was removed from the coord
+     * @throws IllegalArgumentException if coord is outside the layout bounds
      */
-    public boolean removeEntity(int x, int y) {
-        if (!inBounds(x, y)) {
+    public boolean removeEntity(Coordinate coord) {
+        if (!inBounds(coord)) {
             throw new IllegalArgumentException("Can only remove entities in the grid");
         }
-        if (grid[x][y] == null) {
+        if (getEntity(coord) == null) {
             return false;
         } else {
+            int x = coord.getX();
+            int y = coord.getY();
             System.out.println(" removed at : (" + x + ", " + y + ")");
-            entities.remove(grid[x][y]); // TODO: delete the entity at this location, not any entity of same type
-            grid[x][y] = null;
+            entities.remove(getEntity(coord)); // TODO: delete the entity at this location, not any entity of same type
+            grid[coord.getX()][coord.getY()] = null;
             return true;
         }
     }
 
     /**
-     * Returns the entity at these x, y coords.
-     * @param x
-     * @param y
-     * @return
+     * Returns the entity at this coordinate
+     * @param coord where to find the Entity to return
+     * @return Entity at this coordinate
+     * @throws IllegalArgumentException if coord is outside the layout's bounds
+     * @see <code>inBounds</code>
      */
-    public Entity getEntity(int x, int y) {
-        if (!inBounds(x, y)) {
+    public Entity getEntity(Coordinate coord) {
+        if (!inBounds(coord)) {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
-        return grid[x][y];
+        return grid[coord.getX()][coord.getY()];
     }
 
-    public boolean inBounds(int x, int y) {
+    /**
+     * Returns true if the coordinate is in this Layout's bounds
+     * @param coord the coordinate to test
+     * @return true if the coordiante is in this Layout's bounds
+     */
+    public boolean inBounds(Coordinate coord) {
+        int x = coord.getX();
+        int y = coord.getY();
         return x >= 0 && x < getWidth() && y >= 0  && y < getHeight();
     }
 

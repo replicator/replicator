@@ -1,7 +1,9 @@
 package model;
 
 /**
- * Randomly moves about. Reproduces when possible.
+ * An Entity that randomly moves and reproduces when possible.
+ * @author Michael Shintaku
+ * @see model.Entity
  */
 public class RandomEntity extends Entity {
 
@@ -9,8 +11,15 @@ public class RandomEntity extends Entity {
     private static final int SPEED = 3;
     private static final int DEFENSE = 3;
 
-    public RandomEntity(int x, int y) {
-        super(ADVANTAGE, SPEED, DEFENSE, x, y);
+    /**
+     * Creates a RandomEntity at the given coordinate, with the given advantage, speed,
+     * defense, x, y, values.  The Entity has a random starting orientation
+     *
+     * @param coord the coordinate in the layout where this entity is being placed
+     * @see Coordinate
+     */
+    public RandomEntity(Coordinate coord) {
+        super(ADVANTAGE, SPEED, DEFENSE, coord);
     }
 
     @Override
