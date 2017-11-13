@@ -6,6 +6,7 @@ import model.Entity.Direction;
 import model.Entity.Action;
 
 public class Layout {
+    private static boolean debug = true;
     private Entity[][] grid;
     private Set<Entity> entities; // O(nm) time to update board, number of entities <= nm; n = grid.x, m = grid.y
     // TODO: how to do with priorities? brute force O(p * nm), p = priorities.
@@ -80,10 +81,6 @@ public class Layout {
                 Direction orientation = e.getOrientation();
                 Coordinate currPos = e.getCoordinate();
                 Coordinate newPos = currPos.coordAfterMove(orientation);
-//                            if (inBounds(newPos.x, newPos.y) && e.isAlly(getEntity(newPos.x, newPos.y))) {
-//                                System.out.println("NO EATING TEAMMATES");
-//                                System.out.println("Attemted move: (" + e.getX() + ", " + e.getY() + ") -> (" + newPos.x + ", " + newPos.y + ")");
-//                            }
                 if (inBounds(newPos) && !e.isAlly(getEntity(newPos))) {
                     moveEntity(e, newPos);
                     if (GameRunner.DEBUG) {
@@ -105,7 +102,6 @@ public class Layout {
                     System.out.println("Rotating entity at: (" + e.getX() + ", " + e.getY() + ") from : " + old + " to " + newOrient);
                 }
                 e.setOrientation(newOrient);
-//                e.setOrientation(Direction.rotateCCW(e.getOrientation()));
                 break;
             case ROTATE_CW: // TODO
                 e.setOrientation(Direction.rotateCW(e.getOrientation()));
@@ -121,23 +117,23 @@ public class Layout {
      * @return true if an update occurs. doesn't necessarily mean the entities do any noticeable changes
      */
     public boolean update() {
+        if (debug) {
+            checkRep();
+        }
         if (!isGameDone()) {
             time++;
             Set<Entity> entityCpy = new HashSet<>(entities);
             for (Entity e: entityCpy) {
                 if (entities.contains(e)) {
-                    if (GameRunner.DEBUG)
-                        if (GameRunner.DEBUG) {
-                            System.out.println("Modifying entity at: (" + e.getX() + ", " + e.getY() + ")");
-                        }
                     if (e == null) {
-                        System.out.println(" UHOHHHHH attempting to update a null entity");
-                        System.exit(1);
+                        throw new NullPointerException("null Entity added to entities set");
+                    }
+                    if (GameRunner.DEBUG) {
+                        System.out.println("Modifying entity at: (" + e.getX() + ", " + e.getY() + ")");
                     }
                     Action act = e.nextAction();
                     handleAction(e, act);
                 }
-
             }
             return true;
         } else {
@@ -243,6 +239,14 @@ public class Layout {
         return grid[0].length;
     }
 
+    public int getTime() {
+        return time;
+    }
+
+    public int getTimeLimit() {
+        return timeLimit;
+    }
+
     /**
      * String representation of layout
      * @return the string representation of this Layout
@@ -250,10 +254,11 @@ public class Layout {
     // TODO: make it print in better x/y format
     @Override
     public String toString() {
-        char[] lineChar = new char[grid[0].length];
-        Arrays.fill(lineChar, '-');
-        String line = new String(lineChar);
-
+        StringBuilder line = new StringBuilder();
+        int tabSize = 6;
+        for (int i = 0; i < grid[0].length * tabSize; i++) {
+            line.append("-");
+        }
         StringBuilder result = new StringBuilder(line + "\n");
 
         // todo: in this order b/c of how the input[][] looks
@@ -270,8 +275,34 @@ public class Layout {
             }
             result.append("\n");
         }
-        result.append("\n").append(line);
+        result.append(line);
         return result.toString();
+    }
+
+    public void checkRep() {
+        // entities must be placed in the grid
+        // grid's entities must be in entities
+        Set<Entity> gridEntities = new HashSet<>();
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col < grid[0].length; col++) {
+                if (grid[row][col] != null) {
+                    Entity temp = grid[row][col];
+                    // entities in the grid at x/y should have those x/y coords
+                    if (temp.getCoordinate().getX() != row || temp.getCoordinate().getY() != col) {
+                        throw new IllegalStateException("Entities in the grid must have the same coordinates as that grid location");
+                    }
+                    gridEntities.add(temp);
+                }
+            }
+        }
+        if (gridEntities.size() != entities.size()) {
+            throw new IllegalStateException("Entities in the grid and in the Entities set must be the same");
+        }
+        for (Entity e: gridEntities) {
+            if (!entities.contains(e)) {
+                throw new IllegalStateException("Entities in the grid and in the Entities set must be the same");
+            }
+        }
     }
 
 }
