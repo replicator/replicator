@@ -19,12 +19,18 @@ public abstract class Entity {
 
 
     /**
-     * An immutable representation of an (x, y) position in the Layout
+     * An immutable representation of an (x, y) position in the Layout. x >= 0 && y >= 0
+     * TODO: override equals and hashcode
      */
     public static class Coordinate {
         private final int x;
         private final int y;
 
+        /**
+         * Creates a Coordinate object with the x, y coordinates. x >= 0 && y >= 0
+         * @param x the x-coordinate
+         * @param y the y-coordinate
+         */
         public Coordinate(int x, int y) {
             this.x = x;
             this.y = y;
