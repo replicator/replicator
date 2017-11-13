@@ -5,8 +5,12 @@ import model.Entity.Coordinate;
 import model.Entity.Direction;
 import model.Entity.Action;
 
+/**
+ * @author Michael Shintaku
+ * @see Entity
+ */
 public class Layout {
-    private static boolean debug = true;
+    private static boolean debug = false;
     private Entity[][] grid;
     private Set<Entity> entities; // O(nm) time to update board, number of entities <= nm; n = grid.x, m = grid.y
     // TODO: how to do with priorities? brute force O(p * nm), p = priorities.
@@ -30,7 +34,6 @@ public class Layout {
     // TODO
     public String getNumOfEachEntity() {
         return "to be implemented";
-//        return numOfEachEntity;
     }
 
 
@@ -144,62 +147,63 @@ public class Layout {
 
     // todo: regression test. bug of entities' x/y value not being updated
 
-    // todo: inserting a null
-    // todo: definition of t/f returns
+    // todo: ACTUAL, this replaces entities if ent would conflict
+    // inserts an Entity ent into the layout. removes prior entities at the same coordinate
     // ASSUME: entity has not already been inserted?
-    public boolean insertEntity(Entity ent) {
-        // true if nothing else there
-        // false if it replaces
-        // throw if fail
+
+    /**
+     * Simply adds an entity to the layout
+     * @param ent the entity to be added to the layout
+     * @throws IllegalArgumentException if entity cannot be placed in layout
+     */
+    public void addEntity(Entity ent) {
         if (!inBounds(ent.getCoordinate())) {
             throw new IllegalArgumentException("Cannot access elements outside the layout");
         }
-        removeEntity(ent.getCoordinate());
-        grid[ent.getX()][ent.getY()] = ent;
-        entities.add(ent);
-        return true;
+        insertEntity(ent.getCoordinate(), ent);
     }
 
     // move ent to x/y
     // An entity must already be i n the grid
     // todo: add regression test, where entities moved onto each other, the number of entities went down, but the
     // todo: representation (grid) still showed them
-    public boolean moveEntity(Entity ent, Coordinate coord) {
+    /**
+     * Moves an existing entity in the layout to a new coordinate. Should be used instead of 2 insertEntity's/remove to
+     * remove and reinsert
+     * @param ent the entity to be moved
+     * @param coord the destination coordinate the entity is to be moved to
+     * @throws IllegalArgumentException if the entity doesn't exist in the layout, or it cannot be moved to the
+     * destination coord
+     */
+    public void moveEntity(Entity ent, Coordinate coord) {
+        // Not just insertEntity's, to save time on redundant Entity set operations
         if (!entities.contains(ent)) {
             throw new IllegalArgumentException("Can only move entities that already exist in the grid");
         }
         if (!inBounds(coord)) {
             throw new IllegalArgumentException("Can only move entities within the grid");
         }
-        // todo: could do this manually, and save some calls
-        removeEntity(ent.getCoordinate()); // remove entity at prior coordinate
+
+        // Entity's prior position is removed
+        grid[ent.getX()][ent.getY()] = null;
+
+        // Entity's position updated to destination
         ent.setCoordinate(coord);
-        insertEntity(ent); // insert entity at new coordinate
-        return true;
+
+        // Remove any entities at the destination
+        removeEntity(coord);
+
+        // Put entity at the destination
+        grid[ent.getX()][ent.getY()] = ent;
     }
 
     /**
-     * Removes the Entity at this coordinate. Returns true if an Entity was actually removed
+     * Removes the Entity at this coordinate.
      * @param coord the coordinate to remove Entities from
-     * @return true if an Entity was removed from the coord, false if there was no Entity at the coord
      * @throws IllegalArgumentException if coord is outside the layout bounds
      */
-    public boolean removeEntity(Coordinate coord) {
-        if (!inBounds(coord)) {
-            throw new IllegalArgumentException("Can only remove entities in the grid");
-        }
-        if (getEntity(coord) == null) {
-            return false;
-        } else {
-            int x = coord.getX();
-            int y = coord.getY();
-            if (GameRunner.DEBUG) {
-                System.out.println(" removed at : (" + x + ", " + y + ")");
-            }
-            entities.remove(getEntity(coord)); // TODO: delete the entity at this location, not any entity of same type
-            grid[coord.getX()][coord.getY()] = null;
-            return true;
-        }
+    public void removeEntity(Coordinate coord) {
+        insertEntity(coord, null);
     }
 
     /**
@@ -217,11 +221,37 @@ public class Layout {
     }
 
     /**
+     * Sets the entity at the coord position to be ent.
+     *
+     * @param coord the coordinate to place the new entity in
+     * @param ent the entity to be placed at coord
+     * @throws IllegalArgumentException if coord is outside the layout's bounds
+     */
+    // updates the set of entities accordingly
+    public void insertEntity(Coordinate coord, Entity ent) {
+        if (!inBounds(coord)) {
+            throw new IllegalArgumentException("Cannot access elements outside the layout");
+        }
+        Entity prev = getEntity(coord);
+        if (prev != null) {
+            entities.remove(prev);
+        }
+        if (ent != null) {
+            entities.add(ent);
+        }
+        grid[coord.getX()][coord.getY()] = ent;
+    }
+
+    /**
      * Returns true if the coordinate is in this Layout's bounds
      * @param coord the coordinate to test
      * @return true if the coordiante is in this Layout's bounds
+     * @throws IllegalArgumentException if coord is null
      */
     public boolean inBounds(Coordinate coord) {
+        if (coord == null) {
+            throw new IllegalArgumentException("Coordinates cannot be null");
+        }
         int x = coord.getX();
         int y = coord.getY();
         return x >= 0 && x < getWidth() && y >= 0  && y < getHeight();
@@ -279,6 +309,10 @@ public class Layout {
         return result.toString();
     }
 
+    /**
+     * Should only be used in testing cases. Verifies that the same Entities in the grid are those in the Entity set,
+     * and that only those in both are in either.
+     */
     public void checkRep() {
         // entities must be placed in the grid
         // grid's entities must be in entities

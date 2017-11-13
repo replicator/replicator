@@ -44,10 +44,10 @@ public class GameRunner {
                 Coordinate coord = new Coordinate(row, col);
                 if (input[row][col] == 1) {
                     e = new RandomEntity(coord);
-                    result.insertEntity(e);
+                    result.addEntity(e);
                 } else if (input[row][col] == 2) {
                     e = new TurretEntity(coord);
-                    result.insertEntity(e);
+                    result.addEntity(e);
                 }
             }
         }
