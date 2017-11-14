@@ -1,5 +1,6 @@
 package model;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 /**
@@ -8,7 +9,6 @@ import java.util.Random;
  */
 public abstract class Entity {
 
-    private Coordinate coordinate;
 
     private static final Random r = new Random();
 
@@ -16,6 +16,9 @@ public abstract class Entity {
     private int speed;
     //    private int defense;
     private Direction orientation;
+    private Coordinate coordinate;
+
+
 
 
     /**
@@ -156,10 +159,70 @@ public abstract class Entity {
      */
     public Entity(int advantage, int speed, int defense, Coordinate coord) {
         Direction[] possibleStart = Direction.values();
-        orientation = possibleStart[getRandom().nextInt(possibleStart.length)];
+        orientation = startingOrientation();
         this.advantage = advantage;
         this.speed = speed;
         this.coordinate = coord;
+    }
+
+    // equal entities: same class, advantage, speed, defense, coordinate, orientation, nextmove
+    // final so cannot be overriden
+    // todo: entities' fields must always implement value-based equality
+    @Override
+    public final boolean equals(Object other) {
+        // must be Entities
+        if (!(other instanceof Entity)) {
+            return false;
+        }
+
+        // must be same Entity type
+        Entity entOther = (Entity) other;
+        Class thisClass = this.getClass();
+        Class otherClass = entOther.getClass();
+        if (thisClass != otherClass) {
+            return false;
+        }
+        // all fields must be equals
+        Field[] fields = thisClass.getFields();
+        Field[] otherFields = otherClass.getFields();
+        if (fields.length != otherFields.length) {
+            return false;
+        }
+        for (int i = 0; i < fields.length; i++) {
+            try {
+                // all the fields must be the same
+                if (!fields[i].get(this).equals(otherFields[i].get(other))) {
+                    return false;
+                }
+            } catch (IllegalAccessException ia) {
+                System.out.println("Field inaccessible");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Uses Joshua Bloch's Effective Java (2e) general recipe for hashCode functions
+    @Override
+    public int hashCode() {
+        // hashcode must be consistent, as long as equality between timesteps same
+        // if two objs are equal, they have same hashcode
+        //
+        int result = 17;
+
+        return result;
+    }
+
+
+
+    /**
+     * todo: write this comment better
+     * Used to get the starting orientation.
+     * @return a random orientation
+     */
+    public Direction startingOrientation() {
+        Direction[] possibleStart = Direction.values();
+        return possibleStart[getRandom().nextInt(possibleStart.length)];
     }
 
     /**
