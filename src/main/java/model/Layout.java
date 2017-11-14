@@ -10,7 +10,7 @@ import model.Entity.Action;
  * @see Entity
  */
 public class Layout {
-    private static boolean debug = false;
+    private static boolean debug = true;
     private Entity[][] grid;
     private Set<Entity> entities; // O(nm) time to update board, number of entities <= nm; n = grid.x, m = grid.y
     // TODO: how to do with priorities? brute force O(p * nm), p = priorities.
@@ -140,7 +140,7 @@ public class Layout {
             }
             return true;
         } else {
-            System.out.println("numb entities: " + entities.size());
+            System.out.println("game is done, entities #: " + entities.size());
             return false;
         }
     }

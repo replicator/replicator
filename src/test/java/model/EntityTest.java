@@ -26,86 +26,89 @@ public class EntityTest {
         }
     }
 
-    @Test
-    public void testInequality() {
-        Entity rand = new RandomEntity(new Coordinate(0, 0));
-        Entity turr = new TurretEntity(new Coordinate(0, 0));
-        Entity randZ = new RandomEntity(new Coordinate(0, 0));
-        Entity turrZ = new TurretEntity(new Coordinate(0, 0));
-        rand.setOrientation(Direction.SOUTH);
-        turr.setOrientation(Direction.SOUTH);
-        randZ.setOrientation(Direction.SOUTH);
-        turrZ.setOrientation(Direction.SOUTH);
-
-        assertNotEquals(inputs[0], inputs[1]);
-        assertNotEquals(inputs[1], inputs[0]);
-
-        assertNotEquals(inputs[0], turr);
-        assertNotEquals(inputs[0], turrZ);
-        assertNotEquals(turr, inputs[0]);
-        assertNotEquals(turrZ, inputs[0]);
-
-        assertNotEquals(inputs[1], rand);
-        assertNotEquals(inputs[1], randZ);
-        assertNotEquals(rand, inputs[1]);
-        assertNotEquals(randZ, inputs[1]);
-
-    }
-
-    // todo: probably split up hashcode tests
-    @Test
-    public void testEquality() {
-        // todo: put this in setup
-        Entity rand = new RandomEntity(new Coordinate(0, 0));
-        Entity turr = new TurretEntity(new Coordinate(0, 0));
-        rand.setOrientation(Direction.NORTH);
-        turr.setOrientation(Direction.NORTH);
-
-//        Entity rand = new RandomEntity(new Coordinate(1, 1));
-//        Entity turr = new RandomEntity(new Coordinate(1, 1));
-        // value-based
-        assertEquals(inputs[0], rand);
-        assertEquals(inputs[1], turr);
-        assertEquals(inputs[0].hashCode(), rand.hashCode());
-        assertEquals(inputs[1].hashCode(), turr.hashCode());
-
-
-        // reflexivity
-        assertEquals(inputs[0], inputs[0]);
-        assertEquals(inputs[1], inputs[1]);
-        assertEquals(inputs[0].hashCode(), inputs[0].hashCode());
-        assertEquals(inputs[1].hashCode(), inputs[1].hashCode());
-
-        // symmetric
-        assertEquals(inputs[0], rand);
-        assertEquals(rand, inputs[0]);
-        assertEquals(inputs[1], turr);
-        assertEquals(turr, inputs[1]);
-        assertEquals(inputs[0].hashCode(), rand.hashCode());
-        assertEquals(rand.hashCode(), inputs[0].hashCode());
-        assertEquals(inputs[1].hashCode(), turr.hashCode());
-        assertEquals(turr.hashCode(), inputs[1].hashCode());
-
-        // transitive
-        Entity randZ = new RandomEntity(new Coordinate(0, 0));
-        Entity turrZ = new TurretEntity(new Coordinate(0, 0));
-        randZ.setOrientation(Direction.NORTH);
-        turrZ.setOrientation(Direction.NORTH);
-
-        assertEquals(rand, randZ);
-        assertEquals(inputs[0], randZ);
-        assertEquals(turr, turrZ);
-        assertEquals(inputs[1], turrZ);
-        assertEquals(rand.hashCode(), randZ.hashCode());
-        assertEquals(inputs[0].hashCode(), randZ.hashCode());
-        assertEquals(turr.hashCode(), turrZ.hashCode());
-        assertEquals(inputs[1].hashCode(), turrZ.hashCode());
-
-        // nullity
-        assertFalse(inputs[0].equals(null));
-        assertFalse(inputs[1].equals(null));
-
-    }
+//    @Test
+//    public void testInequality() {
+//        Entity rand = new RandomEntity(new Coordinate(0, 0));
+//        Entity turr = new TurretEntity(new Coordinate(0, 0));
+//        Entity randZ = new RandomEntity(new Coordinate(0, 0));
+//        Entity turrZ = new TurretEntity(new Coordinate(0, 0));
+//        rand.setOrientation(Direction.SOUTH);
+//        turr.setOrientation(Direction.SOUTH);
+//        randZ.setOrientation(Direction.SOUTH);
+//        turrZ.setOrientation(Direction.SOUTH);
+//
+//        assertNotEquals(inputs[0], inputs[1]);
+//        assertNotEquals(inputs[1], inputs[0]);
+//
+//        assertNotEquals(inputs[0], turr);
+//        assertNotEquals(inputs[0], turrZ);
+//        assertNotEquals(turr, inputs[0]);
+//        assertNotEquals(turrZ, inputs[0]);
+//
+//        assertNotEquals(inputs[1], rand);
+//        assertNotEquals(inputs[1], randZ);
+//        assertNotEquals(rand, inputs[1]);
+//        assertNotEquals(randZ, inputs[1]);
+//
+//    }
+//
+//    // todo: probably split up hashcode tests
+//    @Test
+//    public void testEquality() {
+//        // todo: put this in setup
+//        Entity rand = new RandomEntity(new Coordinate(0, 0));
+//        Entity turr = new TurretEntity(new Coordinate(0, 0));
+//        rand.setOrientation(Direction.NORTH);
+//        turr.setOrientation(Direction.NORTH);
+//
+////        Entity rand = new RandomEntity(new Coordinate(1, 1));
+////        Entity turr = new RandomEntity(new Coordinate(1, 1));
+//        // value-based
+//        Entity b4 = inputs[0];
+//
+//        assertEquals(inputs[0], inputs[0]);
+//        assertEquals(inputs[0], rand);
+//        assertEquals(inputs[1], turr);
+//        assertEquals(inputs[0].hashCode(), rand.hashCode());
+//        assertEquals(inputs[1].hashCode(), turr.hashCode());
+//
+//
+//        // reflexivity
+//        assertEquals(inputs[0], inputs[0]);
+//        assertEquals(inputs[1], inputs[1]);
+//        assertEquals(inputs[0].hashCode(), inputs[0].hashCode());
+//        assertEquals(inputs[1].hashCode(), inputs[1].hashCode());
+//
+//        // symmetric
+//        assertEquals(inputs[0], rand);
+//        assertEquals(rand, inputs[0]);
+//        assertEquals(inputs[1], turr);
+//        assertEquals(turr, inputs[1]);
+//        assertEquals(inputs[0].hashCode(), rand.hashCode());
+//        assertEquals(rand.hashCode(), inputs[0].hashCode());
+//        assertEquals(inputs[1].hashCode(), turr.hashCode());
+//        assertEquals(turr.hashCode(), inputs[1].hashCode());
+//
+//        // transitive
+//        Entity randZ = new RandomEntity(new Coordinate(0, 0));
+//        Entity turrZ = new TurretEntity(new Coordinate(0, 0));
+//        randZ.setOrientation(Direction.NORTH);
+//        turrZ.setOrientation(Direction.NORTH);
+//
+//        assertEquals(rand, randZ);
+//        assertEquals(inputs[0], randZ);
+//        assertEquals(turr, turrZ);
+//        assertEquals(inputs[1], turrZ);
+//        assertEquals(rand.hashCode(), randZ.hashCode());
+//        assertEquals(inputs[0].hashCode(), randZ.hashCode());
+//        assertEquals(turr.hashCode(), turrZ.hashCode());
+//        assertEquals(inputs[1].hashCode(), turrZ.hashCode());
+//
+//        // nullity
+//        assertFalse(inputs[0].equals(null));
+//        assertFalse(inputs[1].equals(null));
+//
+//    }
 
     //todo: test when allies can be between diff species
     @Test

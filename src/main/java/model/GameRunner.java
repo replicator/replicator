@@ -4,7 +4,7 @@ import model.Entity.Coordinate;
 
 public class GameRunner {
     public static final boolean DEBUG = false;
-    public static final boolean CONSOLE_RUN = false;
+    public static final boolean CONSOLE_RUN = true;
 
     public static void main(String[] args) {
         Scanner console = new Scanner(System.in);
@@ -13,7 +13,7 @@ public class GameRunner {
                 {0, 0, 0, 2},
                 {0, 2, 2, 2},
                 {0, 1, 0, 0}};
-        int timeLimit = 100;
+        int timeLimit = 1000;
         Layout result = createLayout(input, timeLimit);
 
         System.out.println("Layout entered: \n" + result);

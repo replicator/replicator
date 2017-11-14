@@ -7,9 +7,9 @@ package model;
  */
 public class TurretEntity extends Entity {
 
-    public static final int ADVANTAGE = 3;
-    public static final int SPEED = 3;
-    public static final int DEFENSE = 3;
+    private static final int ADVANTAGE = 3;
+    private static final int SPEED = 3;
+    private static final int DEFENSE = 3;
 
     /**
      * Creates a TurretEntity at the given coordinate, with the given advantage, speed,
