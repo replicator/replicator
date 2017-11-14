@@ -15,8 +15,8 @@ public abstract class Entity {
     private int advantage;
     private int speed;
     //    private int defense;
-    private Direction orientation;
-    private Coordinate coordinate;
+    public Direction orientation;
+    public Coordinate coordinate;
 
 
 
@@ -91,6 +91,27 @@ public abstract class Entity {
             return y;
         }
 
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            }
+            if (!(other instanceof Coordinate)) {
+                return false;
+            }
+            Coordinate cOther = (Coordinate) other;
+            return this.getX() == cOther.getX() && this.getY() == cOther.getY();
+        }
+
+        // uses Joshua Bloch's formula
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result = 31 * result + x;
+            result = 31 * result + y;
+            return result;
+        }
+
 
     }
 
@@ -158,7 +179,6 @@ public abstract class Entity {
      * @see Coordinate
      */
     public Entity(int advantage, int speed, int defense, Coordinate coord) {
-        Direction[] possibleStart = Direction.values();
         orientation = startingOrientation();
         this.advantage = advantage;
         this.speed = speed;
@@ -171,6 +191,9 @@ public abstract class Entity {
     @Override
     public final boolean equals(Object other) {
         // must be Entities
+        if (other == this) {
+            return true;
+        }
         if (!(other instanceof Entity)) {
             return false;
         }
@@ -209,6 +232,54 @@ public abstract class Entity {
         // if two objs are equal, they have same hashcode
         //
         int result = 17;
+        // since prior value-based equality defined by the public fields
+        Field[] fields = this.getClass().getFields();
+        for (Field f: fields) {
+            Class t = f.getType();
+            int c = 0;
+            switch (t.getTypeName()) {
+                case "int":
+                    try {
+                        c = (int) f.get(this);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        throw new IllegalStateException("Need to fix this code, a new field has been added");
+                    }
+                    break;
+                case "model.Entity$Direction":
+                    try {
+                        c = ((Direction) f.get(this)).value;
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        throw new IllegalStateException("Need to fix this code, a new field has been added");
+                    }
+                    break;
+                case "model.Entity$Coordinate":
+                    try {
+                        c = f.get(this).hashCode();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                        throw new IllegalStateException("Need to fix this code, a new field has been added");
+                    }
+                    break;
+                default:
+                    System.out.println("problem name: " + f.getName());
+                    throw new IllegalStateException("Need to fix this code, a new field has been added");
+            }
+            result = 31 * result + c;
+//            diagnostic stuff
+//            try {
+//                System.out.println("type name: " + t.getTypeName());
+//                System.out.println("type: " + t + " name: " + f.getName() + " value: " + f.get(this) +  " hash: " + t.hashCode());
+//                // how to get the raw type of the field, to do the formula?
+//                // or a type that we know?
+//            } catch (IllegalAccessException e) {
+//                System.out.println("uhoh");
+//                e.printStackTrace();
+//            }
+//            result = result * 31 + t.hashCode();
+
+        }
 
         return result;
     }
@@ -217,7 +288,7 @@ public abstract class Entity {
 
     /**
      * todo: write this comment better
-     * Used to get the starting orientation.
+     * Used to get the starting orientation. Defaults as a random orientation.
      * @return a random orientation
      */
     public Direction startingOrientation() {
